@@ -1,0 +1,25 @@
+name: Releaser-pleaser
+on:
+  push:
+    branches: [main]
+  pull_request_target:
+    types:
+      - edited
+      - labeled
+      - unlabeled
+concurrency:
+  group: releaser-pleaser
+  cancel-in-progress: true
+jobs:
+  releaser-pleaser:
+    if: github.repository == 'Contentways/poweradmin-go'
+    runs-on: ubuntu-latest
+    steps:
+      - name: releaser-pleaser
+        uses: apricote/releaser-pleaser@a1ce9493fd3f3abe60f22c37249d257bc10081dc # v0.8.0
+        with:
+          extra-files: |
+            poweradmin/version.go
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          owner: Contentways
+          repo: poweradmin-go

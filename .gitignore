@@ -1,0 +1,12 @@
+# IDE
+.idea/
+.vscode/
+*.swp
+.claude
+# Go
+*.test
+*.out
+coverage.txt
+
+# Local OpenAPI reference
+/json
