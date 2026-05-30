@@ -13,10 +13,10 @@ func TestGroupMembers(t *testing.T) {
 		if r.URL.Path != "/api/v2/groups/3/members" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		writeEnvelope(t, w, http.StatusOK, []map[string]any{
+		writeEnvelope(t, w, http.StatusOK, map[string]any{"members": []map[string]any{
 			{"user_id": 1, "username": "alice", "fullname": "Alice A."},
 			{"user_id": 2, "username": "bob"},
-		})
+		}})
 	})
 	members, _, err := client.Group.Members(context.Background(), 3)
 	if err != nil {

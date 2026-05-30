@@ -88,13 +88,13 @@ func (g *GroupClient) GetByID(ctx context.Context, id int) (*Group, *Response, e
 // List returns one page of [Group]s.
 func (g *GroupClient) List(ctx context.Context, opts ListOpts) ([]*Group, *Response, error) {
 	path := appendQuery("groups", opts.values())
-	var result []schema.Group
+	var result schema.GroupListResponse
 	resp, err := g.client.get(ctx, path, &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	groups := make([]*Group, len(result))
-	for i, s := range result {
+	groups := make([]*Group, len(result.Groups))
+	for i, s := range result.Groups {
 		group := GroupFromSchema(s)
 		groups[i] = &group
 	}
@@ -155,13 +155,13 @@ func (g *GroupClient) Delete(ctx context.Context, id int) (*Response, error) {
 
 // Members returns the [GroupMember]s of a group.
 func (g *GroupClient) Members(ctx context.Context, id int) ([]*GroupMember, *Response, error) {
-	var result []schema.GroupMember
+	var result schema.GroupMemberListResponse
 	resp, err := g.client.get(ctx, fmt.Sprintf("groups/%d/members", id), &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	members := make([]*GroupMember, len(result))
-	for i, s := range result {
+	members := make([]*GroupMember, len(result.Members))
+	for i, s := range result.Members {
 		m := GroupMemberFromSchema(s)
 		members[i] = &m
 	}
@@ -181,13 +181,13 @@ func (g *GroupClient) RemoveMember(ctx context.Context, groupID, userID int) (*R
 
 // Zones returns the zones associated with a group.
 func (g *GroupClient) Zones(ctx context.Context, id int) ([]*GroupZone, *Response, error) {
-	var result []schema.GroupZone
+	var result schema.GroupZoneListResponse
 	resp, err := g.client.get(ctx, fmt.Sprintf("groups/%d/zones", id), &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	zones := make([]*GroupZone, len(result))
-	for i, s := range result {
+	zones := make([]*GroupZone, len(result.Zones))
+	for i, s := range result.Zones {
 		z := GroupZoneFromSchema(s)
 		zones[i] = &z
 	}

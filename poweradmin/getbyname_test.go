@@ -11,10 +11,10 @@ import (
 func TestUserGetByName(t *testing.T) {
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeEnvelopeWithPagination(t, w, http.StatusOK,
-			[]map[string]any{
+			map[string]any{"users": []map[string]any{
 				{"user_id": 1, "username": "alice"},
 				{"user_id": 2, "username": "bob"},
-			},
+			}},
 			map[string]int{"current_page": 1, "per_page": 100, "total": 2, "last_page": 1},
 		)
 	})
@@ -30,7 +30,7 @@ func TestUserGetByName(t *testing.T) {
 func TestUserGetByNameNotFound(t *testing.T) {
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeEnvelopeWithPagination(t, w, http.StatusOK,
-			[]map[string]any{{"user_id": 1, "username": "alice"}},
+			map[string]any{"users": []map[string]any{{"user_id": 1, "username": "alice"}}},
 			map[string]int{"current_page": 1, "per_page": 100, "total": 1, "last_page": 1},
 		)
 	})
@@ -43,10 +43,10 @@ func TestUserGetByNameNotFound(t *testing.T) {
 func TestGroupGetByName(t *testing.T) {
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeEnvelopeWithPagination(t, w, http.StatusOK,
-			[]map[string]any{
+			map[string]any{"groups": []map[string]any{
 				{"id": 1, "name": "ops"},
 				{"id": 2, "name": "dev"},
-			},
+			}},
 			map[string]int{"current_page": 1, "per_page": 100, "total": 2, "last_page": 1},
 		)
 	})
@@ -61,10 +61,10 @@ func TestGroupGetByName(t *testing.T) {
 
 func TestZoneTemplateGetByName(t *testing.T) {
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		writeEnvelope(t, w, http.StatusOK, []map[string]any{
+		writeEnvelope(t, w, http.StatusOK, map[string]any{"templates": []map[string]any{
 			{"id": 1, "name": "Default", "description": "x"},
 			{"id": 2, "name": "Custom", "description": "y"},
-		})
+		}})
 	})
 	tpl, _, err := client.ZoneTemplate.GetByName(context.Background(), "Custom")
 	if err != nil {
@@ -77,10 +77,10 @@ func TestZoneTemplateGetByName(t *testing.T) {
 
 func TestPermissionTemplateGetByName(t *testing.T) {
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		writeEnvelope(t, w, http.StatusOK, []map[string]any{
+		writeEnvelope(t, w, http.StatusOK, map[string]any{"templates": []map[string]any{
 			{"id": 1, "name": "Admin", "descr": "x"},
 			{"id": 2, "name": "Viewer", "descr": "y"},
-		})
+		}})
 	})
 	tpl, _, err := client.PermissionTemplate.GetByName(context.Background(), "Viewer")
 	if err != nil {

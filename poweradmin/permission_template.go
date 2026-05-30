@@ -63,13 +63,13 @@ func (c *PermissionTemplateClient) GetByID(ctx context.Context, id int) (*Permis
 // List returns all [PermissionTemplate]s. The permission list is typically not
 // populated in list responses — use [PermissionTemplateClient.GetByID] for that.
 func (c *PermissionTemplateClient) List(ctx context.Context) ([]*PermissionTemplate, *Response, error) {
-	var result []schema.PermissionTemplate
+	var result schema.PermissionTemplateListResponse
 	resp, err := c.client.get(ctx, "permission-templates", &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	templates := make([]*PermissionTemplate, len(result))
-	for i, s := range result {
+	templates := make([]*PermissionTemplate, len(result.Templates))
+	for i, s := range result.Templates {
 		tpl := permissionTemplateFromSchema(s)
 		templates[i] = &tpl
 	}

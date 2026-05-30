@@ -229,9 +229,9 @@ func TestZoneOwners(t *testing.T) {
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		switch {
 		case r.Method == http.MethodGet && r.URL.Path == "/api/v2/zones/5/owners":
-			writeEnvelope(t, w, http.StatusOK, []map[string]any{
+			writeEnvelope(t, w, http.StatusOK, map[string]any{"owners": []map[string]any{
 				{"user_id": 1, "username": "alice", "fullname": "Alice A."},
-			})
+			}})
 		case r.Method == http.MethodPost && r.URL.Path == "/api/v2/zones/5/owners":
 			sawAdd = true
 			body, _ := io.ReadAll(r.Body)

@@ -86,13 +86,13 @@ func (c *ZoneTemplateClient) GetByID(ctx context.Context, id int) (*ZoneTemplate
 
 // List returns all [ZoneTemplate]s.
 func (c *ZoneTemplateClient) List(ctx context.Context) ([]*ZoneTemplate, *Response, error) {
-	var result []schema.ZoneTemplate
+	var result schema.ZoneTemplateListResponse
 	resp, err := c.client.get(ctx, "zone-templates", &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	templates := make([]*ZoneTemplate, len(result))
-	for i, s := range result {
+	templates := make([]*ZoneTemplate, len(result.Templates))
+	for i, s := range result.Templates {
 		tpl := zoneTemplateFromSchema(s)
 		templates[i] = &tpl
 	}
@@ -106,12 +106,19 @@ func (c *ZoneTemplateClient) Create(ctx context.Context, opts ZoneTemplateCreate
 		Description: opts.Description,
 		IsGlobal:    opts.IsGlobal,
 	}
-	var result schema.ZoneTemplateResponse
+	// The create endpoint returns only the new ID; the rest of the template is
+	// the input echoed back.
+	var result schema.ZoneTemplateCreateResponse
 	resp, err := c.client.post(ctx, "zone-templates", req, &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	tpl := zoneTemplateFromSchema(result.Template)
+	tpl := ZoneTemplate{
+		ID:          result.ID,
+		Name:        opts.Name,
+		Description: opts.Description,
+		IsGlobal:    opts.IsGlobal,
+	}
 	return &tpl, resp, nil
 }
 
@@ -138,13 +145,13 @@ func (c *ZoneTemplateClient) Delete(ctx context.Context, id int) (*Response, err
 
 // Records returns all records belonging to the template.
 func (c *ZoneTemplateClient) Records(ctx context.Context, templateID int) ([]*ZoneTemplateRecord, *Response, error) {
-	var result []schema.ZoneTemplateRecord
+	var result schema.ZoneTemplateRecordListResponse
 	resp, err := c.client.get(ctx, fmt.Sprintf("zone-templates/%d/records", templateID), &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	records := make([]*ZoneTemplateRecord, len(result))
-	for i, s := range result {
+	records := make([]*ZoneTemplateRecord, len(result.Records))
+	for i, s := range result.Records {
 		rec := zoneTemplateRecordFromSchema(s)
 		records[i] = &rec
 	}
@@ -171,12 +178,20 @@ func (c *ZoneTemplateClient) CreateRecord(ctx context.Context, templateID int, o
 		TTL:      opts.TTL,
 		Priority: opts.Priority,
 	}
-	var result schema.ZoneTemplateRecordResponse
+	// The create endpoint returns only the new ID; echo back the input fields.
+	var result schema.ZoneTemplateRecordCreateResponse
 	resp, err := c.client.post(ctx, fmt.Sprintf("zone-templates/%d/records", templateID), req, &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	rec := zoneTemplateRecordFromSchema(result.Record)
+	rec := ZoneTemplateRecord{
+		ID:       result.ID,
+		Name:     opts.Name,
+		Type:     opts.Type,
+		Content:  opts.Content,
+		TTL:      opts.TTL,
+		Priority: opts.Priority,
+	}
 	return &rec, resp, nil
 }
 

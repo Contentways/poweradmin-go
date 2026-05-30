@@ -41,24 +41,24 @@ type RRSetClient struct {
 
 // Get returns a single [RRSet] identified by name and type within a zone.
 func (r *RRSetClient) Get(ctx context.Context, zoneID int, name, recordType string) (*RRSet, *Response, error) {
-	var s schema.RRSet
-	resp, err := r.client.get(ctx, fmt.Sprintf("zones/%d/rrsets/%s/%s", zoneID, name, recordType), &s)
+	var result schema.RRSetResponse
+	resp, err := r.client.get(ctx, fmt.Sprintf("zones/%d/rrsets/%s/%s", zoneID, name, recordType), &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	rr := RRSetFromSchema(s)
+	rr := RRSetFromSchema(result.RRSet)
 	return &rr, resp, nil
 }
 
 // List returns all [RRSet]s in a zone.
 func (r *RRSetClient) List(ctx context.Context, zoneID int) ([]*RRSet, *Response, error) {
-	var result []schema.RRSet
+	var result schema.RRSetListResponse
 	resp, err := r.client.get(ctx, fmt.Sprintf("zones/%d/rrsets", zoneID), &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	rrsets := make([]*RRSet, len(result))
-	for i, s := range result {
+	rrsets := make([]*RRSet, len(result.RRSets))
+	for i, s := range result.RRSets {
 		rr := RRSetFromSchema(s)
 		rrsets[i] = &rr
 	}

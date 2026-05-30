@@ -5,13 +5,17 @@
 // These types are not meant to be used directly by consumers of the SDK.
 // Use the domain types in the parent package instead.
 //
-// Shapes follow Poweradmin API v2 OpenAPI spec:
+// Shapes follow Poweradmin API v2, as standardized in Poweradmin 4.3.0:
 //   - Envelope: {success, message, data, pagination, meta, error}
 //   - Pagination lives at envelope level, not inside data.
-//   - List endpoints return data as a flat array.
-//   - Single-resource endpoints typically wrap the object under data.<resource>
-//     (e.g. data.zone, data.record); a few return the object directly under data
-//     (notably RRSet single).
+//   - List endpoints wrap the array under a named key inside data
+//     (e.g. data.zones, data.records, data.rrsets, data.owners).
+//   - Single-resource endpoints wrap the object under its resource key
+//     (e.g. data.zone, data.record, data.rrset).
+//
+// Releases before 4.3.0 returned several of these collections as bare arrays;
+// this client targets the 4.3.0+ wrapped shape. See the version matrix in the
+// README.
 package schema
 
 import "encoding/json"
@@ -62,9 +66,6 @@ type ZoneResponse struct {
 	Zone Zone `json:"zone"`
 }
 
-// ZoneListResponse is the wrapper used by /v2/zones — alone among the list
-// endpoints in this API, this one nests the array under a "zones" key inside
-// data instead of returning a flat array.
 type ZoneListResponse struct {
 	Zones []Zone `json:"zones"`
 }
@@ -109,6 +110,11 @@ type RecordResponse struct {
 	Record Record `json:"record"`
 }
 
+// RecordListResponse wraps the array returned by GET /v2/zones/{id}/records.
+type RecordListResponse struct {
+	Records []Record `json:"records"`
+}
+
 type RecordCreateRequest struct {
 	Name      string `json:"name"`
 	Type      string `json:"type"`
@@ -144,9 +150,11 @@ type BulkRecordsRequest struct {
 }
 
 type BulkRecordsResponse struct {
-	SuccessCount int      `json:"success_count,omitempty"`
-	FailureCount int      `json:"failure_count,omitempty"`
-	Errors       []string `json:"errors,omitempty"`
+	Created int      `json:"created"`
+	Updated int      `json:"updated"`
+	Deleted int      `json:"deleted"`
+	Failed  int      `json:"failed"`
+	Errors  []string `json:"errors,omitempty"`
 }
 
 // ── RRSet ────────────────────────────────────────────────────────────────────
@@ -165,6 +173,16 @@ type RRSetRecord struct {
 	Content  string `json:"content"`
 	Priority int    `json:"priority,omitempty"`
 	Disabled bool   `json:"disabled,omitempty"`
+}
+
+// RRSetResponse wraps a single RRSet returned under data.rrset.
+type RRSetResponse struct {
+	RRSet RRSet `json:"rrset"`
+}
+
+// RRSetListResponse wraps the array returned under data.rrsets.
+type RRSetListResponse struct {
+	RRSets []RRSet `json:"rrsets"`
 }
 
 // RRSetUpsertRequest is sent via PUT to create-or-replace a full RRSet.
@@ -195,6 +213,11 @@ type User struct {
 
 type UserResponse struct {
 	User User `json:"user"`
+}
+
+// UserListResponse wraps the array returned under data.users.
+type UserListResponse struct {
+	Users []User `json:"users"`
 }
 
 type UserCreateResponse struct {
@@ -242,6 +265,11 @@ type PermissionResponse struct {
 	Permission Permission `json:"permission"`
 }
 
+// PermissionListResponse wraps the array returned under data.permissions.
+type PermissionListResponse struct {
+	Permissions []Permission `json:"permissions"`
+}
+
 // ── Permission Template ──────────────────────────────────────────────────────
 
 type PermissionTemplate struct {
@@ -254,6 +282,11 @@ type PermissionTemplate struct {
 
 type PermissionTemplateResponse struct {
 	Template PermissionTemplate `json:"template"`
+}
+
+// PermissionTemplateListResponse wraps the array returned under data.templates.
+type PermissionTemplateListResponse struct {
+	Templates []PermissionTemplate `json:"templates"`
 }
 
 type PermissionTemplateRequest struct {
@@ -277,6 +310,11 @@ type Group struct {
 
 type GroupResponse struct {
 	Group Group `json:"group"`
+}
+
+// GroupListResponse wraps the array returned under data.groups.
+type GroupListResponse struct {
+	Groups []Group `json:"groups"`
 }
 
 type GroupCreateResponse struct {
@@ -307,6 +345,11 @@ type GroupMemberRequest struct {
 	UserID int `json:"user_id"`
 }
 
+// GroupMemberListResponse wraps the array returned under data.members.
+type GroupMemberListResponse struct {
+	Members []GroupMember `json:"members"`
+}
+
 type GroupZone struct {
 	ZoneID    int    `json:"zone_id"`
 	ZoneName  string `json:"zone_name"`
@@ -316,6 +359,11 @@ type GroupZone struct {
 
 type GroupZoneRequest struct {
 	ZoneID int `json:"zone_id"`
+}
+
+// GroupZoneListResponse wraps the array returned under data.zones.
+type GroupZoneListResponse struct {
+	Zones []GroupZone `json:"zones"`
 }
 
 // ── Zone Owner ───────────────────────────────────────────────────────────────
@@ -330,6 +378,11 @@ type ZoneOwner struct {
 type ZoneOwnerAddRequest struct {
 	UserID  int   `json:"user_id,omitempty"`
 	UserIDs []int `json:"user_ids,omitempty"`
+}
+
+// ZoneOwnerListResponse wraps the array returned under data.owners.
+type ZoneOwnerListResponse struct {
+	Owners []ZoneOwner `json:"owners"`
 }
 
 // ── Zone Template ────────────────────────────────────────────────────────────
@@ -347,10 +400,21 @@ type ZoneTemplateResponse struct {
 	Template ZoneTemplate `json:"template"`
 }
 
+// ZoneTemplateListResponse wraps the array returned under data.templates.
+type ZoneTemplateListResponse struct {
+	Templates []ZoneTemplate `json:"templates"`
+}
+
 type ZoneTemplateRequest struct {
 	Name        string `json:"name"`
 	Description string `json:"description"`
 	IsGlobal    bool   `json:"is_global,omitempty"`
+}
+
+// ZoneTemplateCreateResponse is returned by POST /v2/zone-templates, which
+// reports only the new ID rather than the full object.
+type ZoneTemplateCreateResponse struct {
+	ID int `json:"id"`
 }
 
 type ZoneTemplateRecord struct {
@@ -366,10 +430,21 @@ type ZoneTemplateRecordResponse struct {
 	Record ZoneTemplateRecord `json:"record"`
 }
 
+// ZoneTemplateRecordListResponse wraps the array returned under data.records.
+type ZoneTemplateRecordListResponse struct {
+	Records []ZoneTemplateRecord `json:"records"`
+}
+
 type ZoneTemplateRecordRequest struct {
 	Name     string `json:"name"`
 	Type     string `json:"type"`
 	Content  string `json:"content"`
 	TTL      int    `json:"ttl,omitempty"`
 	Priority int    `json:"priority,omitempty"`
+}
+
+// ZoneTemplateRecordCreateResponse is returned by
+// POST /v2/zone-templates/{id}/records, which reports only the new record ID.
+type ZoneTemplateRecordCreateResponse struct {
+	ID int `json:"id"`
 }
