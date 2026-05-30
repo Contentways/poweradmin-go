@@ -1,5 +1,7 @@
 # go-poweradmin
 
+> **Mirror:** This repository is a read-only mirror. Primary development, issues, and contributions happen at [git.contentways.dev/contentways/poweradmin-go](https://git.contentways.dev/contentways/poweradmin-go).
+
 A Go client library for the [Poweradmin](https://www.poweradmin.org/) DNS
 management API (v2).
 
