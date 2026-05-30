@@ -115,3 +115,77 @@ func TestRecordBulk(t *testing.T) {
 		t.Errorf("result = %+v, want created=1 deleted=1", result)
 	}
 }
+
+func TestRecordGetByID(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/api/v2/zones/5/records/99" {
+			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
+		}
+		writeEnvelope(t, w, http.StatusOK, map[string]any{
+			"record": map[string]any{
+				"id":      99,
+				"zone_id": 5,
+				"name":    "www.example.com",
+				"type":    "A",
+				"content": "1.2.3.4",
+				"ttl":     300,
+			},
+		})
+	})
+	rec, _, err := client.Record.GetByID(context.Background(), 5, 99)
+	if err != nil {
+		t.Fatalf("GetByID: %v", err)
+	}
+	if rec.ID != 99 || rec.Type != "A" || rec.Content != "1.2.3.4" {
+		t.Errorf("rec = %+v", rec)
+	}
+}
+
+func TestRecordUpdate(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPut || r.URL.Path != "/api/v2/zones/5/records/99" {
+			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
+		}
+		writeEnvelope(t, w, http.StatusOK, map[string]any{
+			"record": map[string]any{
+				"id":      99,
+				"zone_id": 5,
+				"name":    "www.example.com",
+				"type":    "A",
+				"content": "5.6.7.8",
+				"ttl":     600,
+			},
+		})
+	})
+	ttl := 600
+	rec, _, err := client.Record.Update(context.Background(), 5, 99, RecordUpdateOpts{
+		Name:    "www.example.com",
+		Type:    "A",
+		Content: "5.6.7.8",
+		TTL:     &ttl,
+	})
+	if err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	if rec.Content != "5.6.7.8" || rec.TTL != 600 {
+		t.Errorf("rec = %+v", rec)
+	}
+}
+
+func TestRecordDelete(t *testing.T) {
+	deleted := false
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete || r.URL.Path != "/api/v2/zones/5/records/99" {
+			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
+		}
+		deleted = true
+		writeEnvelope(t, w, http.StatusOK, nil)
+	})
+	_, err := client.Record.Delete(context.Background(), 5, 99)
+	if err != nil {
+		t.Fatalf("Delete: %v", err)
+	}
+	if !deleted {
+		t.Error("DELETE was not called")
+	}
+}
