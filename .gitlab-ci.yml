@@ -1,0 +1,36 @@
+stages:
+  - lint
+  - test
+
+variables:
+  GOPATH: /cache/go
+  GOMODCACHE: /cache/go/pkg/mod
+
+cache:
+  key: ${CI_COMMIT_REF_SLUG}
+  paths:
+    - /cache/go/pkg/mod
+
+pre-commit:
+  stage: lint
+  image: golang:1.26
+  before_script:
+    - pip install pre-commit --break-system-packages
+  script:
+    - pre-commit run --all-files
+
+test:
+  stage: test
+  image: $GO_IMAGE
+  parallel:
+    matrix:
+      - GO_IMAGE: ["golang:1.26", "golang:1.27"]
+  script:
+    - go test -coverprofile=coverage.txt -v -race ./...
+    - go tool cover -func=coverage.txt
+  coverage: '/total:\s+\(statements\)\s+(\d+\.\d+)%/'
+  artifacts:
+    reports:
+      coverage_report:
+        coverage_format: cobertura
+        path: coverage.txt
