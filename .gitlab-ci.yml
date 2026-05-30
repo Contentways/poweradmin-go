@@ -3,13 +3,13 @@ stages:
   - test
 
 variables:
-  GOPATH: /cache/go
-  GOMODCACHE: /cache/go/pkg/mod
+  GOPATH: $CI_PROJECT_DIR/.go
+  GOMODCACHE: $CI_PROJECT_DIR/.go/pkg/mod
 
 cache:
   key: ${CI_COMMIT_REF_SLUG}
   paths:
-    - /cache/go/pkg/mod
+    - .go/pkg/mod
 
 pre-commit:
   stage: lint
@@ -25,7 +25,7 @@ test:
   image: $GO_IMAGE
   parallel:
     matrix:
-      - GO_IMAGE: ["golang:1.26", "golang:1.27"]
+      - GO_IMAGE: ["golang:1.25", "golang:1.26"]
   script:
     - go test -coverprofile=coverage.txt -v -race ./...
     - go tool cover -func=coverage.txt
