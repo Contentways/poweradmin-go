@@ -1,4 +1,4 @@
-// quickstart is a minimal CLI demonstrating the go-poweradmin SDK.
+// quickstart is a minimal CLI demonstrating the poweradmin-go SDK.
 //
 // Configure via env:
 //
@@ -104,7 +104,7 @@ func main() {
 }
 
 func usage() {
-	fmt.Println(`quickstart — go-poweradmin sample
+	fmt.Println(`quickstart — poweradmin-go sample
 
 Commands:
   list-zones

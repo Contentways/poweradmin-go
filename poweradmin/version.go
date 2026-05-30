@@ -2,5 +2,5 @@
 // SPDX-License-Identifier: MIT
 package poweradmin
 
-// Version is the current version of the go-poweradmin SDK.
+// Version is the current version of the poweradmin-go SDK.
 const Version = "1.1.0"
