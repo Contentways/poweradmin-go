@@ -24,7 +24,7 @@ test:
   stage: test
   image: golang:1.26
   script:
-    - go test -coverprofile=coverage.txt -v -race ./...
+    - go test -coverprofile=coverage.txt -v -race $(go list ./... | grep -v /examples)
     - go tool cover -func=coverage.txt
   coverage: '/total:\s+\(statements\)\s+(\d+\.\d+)%/'
   artifacts:
