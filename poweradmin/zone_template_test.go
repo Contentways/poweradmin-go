@@ -106,3 +106,108 @@ func TestZoneTemplateRecords(t *testing.T) {
 		t.Errorf("records = %+v", records)
 	}
 }
+
+func TestZoneTemplateUpdate(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		switch {
+		case r.Method == http.MethodPut && r.URL.Path == "/api/v2/zone-templates/7":
+			writeEnvelope(t, w, http.StatusOK, map[string]any{
+				"template": map[string]any{
+					"id": 7, "name": "Updated", "description": "new desc",
+					"owner": 1, "is_global": true, "zones_linked": 0,
+				},
+			})
+		default:
+			t.Errorf("unexpected %s %s", r.Method, r.URL.Path)
+		}
+	})
+	tpl, _, err := client.ZoneTemplate.Update(context.Background(), 7, ZoneTemplateUpdateOpts{
+		Name: "Updated", Description: "new desc", IsGlobal: true,
+	})
+	if err != nil {
+		t.Fatalf("Update: %v", err)
+	}
+	if tpl.ID != 7 || tpl.Name != "Updated" || !tpl.IsGlobal {
+		t.Errorf("tpl = %+v", tpl)
+	}
+}
+
+func TestZoneTemplateDelete(t *testing.T) {
+	deleted := false
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete || r.URL.Path != "/api/v2/zone-templates/7" {
+			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
+		}
+		deleted = true
+		writeEnvelope(t, w, http.StatusOK, nil)
+	})
+	_, err := client.ZoneTemplate.Delete(context.Background(), 7)
+	if err != nil {
+		t.Fatalf("Delete: %v", err)
+	}
+	if !deleted {
+		t.Error("DELETE was not called")
+	}
+}
+
+func TestZoneTemplateGetRecord(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet || r.URL.Path != "/api/v2/zone-templates/1/records/5" {
+			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
+		}
+		writeEnvelope(t, w, http.StatusOK, map[string]any{
+			"record": map[string]any{
+				"id": 5, "name": "[ZONE]", "type": "A",
+				"content": "1.2.3.4", "ttl": 3600, "priority": 0,
+			},
+		})
+	})
+	rec, _, err := client.ZoneTemplate.GetRecord(context.Background(), 1, 5)
+	if err != nil {
+		t.Fatalf("GetRecord: %v", err)
+	}
+	if rec.ID != 5 || rec.Type != "A" || rec.Content != "1.2.3.4" {
+		t.Errorf("rec = %+v", rec)
+	}
+}
+
+func TestZoneTemplateUpdateRecord(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPut || r.URL.Path != "/api/v2/zone-templates/1/records/5" {
+			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
+		}
+		writeEnvelope(t, w, http.StatusOK, map[string]any{
+			"record": map[string]any{
+				"id": 5, "name": "[ZONE]", "type": "A",
+				"content": "9.9.9.9", "ttl": 7200, "priority": 0,
+			},
+		})
+	})
+	rec, _, err := client.ZoneTemplate.UpdateRecord(context.Background(), 1, 5, ZoneTemplateRecordOpts{
+		Name: "[ZONE]", Type: "A", Content: "9.9.9.9", TTL: 7200,
+	})
+	if err != nil {
+		t.Fatalf("UpdateRecord: %v", err)
+	}
+	if rec.Content != "9.9.9.9" || rec.TTL != 7200 {
+		t.Errorf("rec = %+v", rec)
+	}
+}
+
+func TestZoneTemplateDeleteRecord(t *testing.T) {
+	deleted := false
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete || r.URL.Path != "/api/v2/zone-templates/1/records/5" {
+			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
+		}
+		deleted = true
+		writeEnvelope(t, w, http.StatusOK, nil)
+	})
+	_, err := client.ZoneTemplate.DeleteRecord(context.Background(), 1, 5)
+	if err != nil {
+		t.Fatalf("DeleteRecord: %v", err)
+	}
+	if !deleted {
+		t.Error("DELETE was not called")
+	}
+}
