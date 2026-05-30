@@ -40,6 +40,25 @@ func TestZoneGetByID(t *testing.T) {
 	}
 }
 
+func TestZoneGetByIDNative(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeEnvelope(t, w, http.StatusOK, map[string]any{
+			"zone": map[string]any{
+				"id":   6,
+				"name": "native.example.com",
+				"type": "NATIVE",
+			},
+		})
+	})
+	z, _, err := client.Zone.GetByID(context.Background(), 6)
+	if err != nil {
+		t.Fatalf("GetByID: %v", err)
+	}
+	if z.Type != ZoneTypeNative {
+		t.Errorf("type = %q, want %q", z.Type, ZoneTypeNative)
+	}
+}
+
 func TestZoneGetByIDNotFound(t *testing.T) {
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		writeError(t, w, http.StatusNotFound, "no such zone")
