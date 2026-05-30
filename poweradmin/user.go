@@ -91,13 +91,13 @@ func (u *UserClient) GetByID(ctx context.Context, id int) (*User, *Response, err
 // List returns one page of [User]s.
 func (u *UserClient) List(ctx context.Context, opts ListOpts) ([]*User, *Response, error) {
 	path := appendQuery("users", opts.values())
-	var result []schema.User
+	var result schema.UserListResponse
 	resp, err := u.client.get(ctx, path, &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	users := make([]*User, len(result))
-	for i, s := range result {
+	users := make([]*User, len(result.Users))
+	for i, s := range result.Users {
 		user := UserFromSchema(s)
 		users[i] = &user
 	}

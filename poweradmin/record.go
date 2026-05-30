@@ -58,11 +58,14 @@ type BulkRecordOperation struct {
 	Disabled bool
 }
 
-// BulkRecordsResult is the outcome of a bulk records call.
+// BulkRecordsResult is the outcome of a bulk records call. The API reports
+// per-action counts rather than a single success/failure tally.
 type BulkRecordsResult struct {
-	SuccessCount int
-	FailureCount int
-	Errors       []string
+	Created int
+	Updated int
+	Deleted int
+	Failed  int
+	Errors  []string
 }
 
 // RecordClient provides access to the record-related Poweradmin API endpoints.
@@ -95,13 +98,13 @@ func (r *RecordClient) List(ctx context.Context, zoneID int, opts RecordListOpts
 		v.Set("type", opts.Type)
 	}
 	path := appendQuery(fmt.Sprintf("zones/%d/records", zoneID), v)
-	var result []schema.Record
+	var result schema.RecordListResponse
 	resp, err := r.client.get(ctx, path, &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	records := make([]*Record, len(result))
-	for i, s := range result {
+	records := make([]*Record, len(result.Records))
+	for i, s := range result.Records {
 		rec := RecordFromSchema(s)
 		records[i] = &rec
 	}
@@ -190,8 +193,10 @@ func (r *RecordClient) Bulk(ctx context.Context, zoneID int, ops []BulkRecordOpe
 		return nil, resp, err
 	}
 	return &BulkRecordsResult{
-		SuccessCount: result.SuccessCount,
-		FailureCount: result.FailureCount,
-		Errors:       result.Errors,
+		Created: result.Created,
+		Updated: result.Updated,
+		Deleted: result.Deleted,
+		Failed:  result.Failed,
+		Errors:  result.Errors,
 	}, resp, nil
 }

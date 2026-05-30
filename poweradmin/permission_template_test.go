@@ -13,9 +13,9 @@ func TestPermissionTemplateList(t *testing.T) {
 		if r.URL.Path != "/api/v2/permission-templates" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		writeEnvelope(t, w, http.StatusOK, []map[string]any{
+		writeEnvelope(t, w, http.StatusOK, map[string]any{"templates": []map[string]any{
 			{"id": 1, "name": "Zone Admin", "descr": "Admin for zones"},
-		})
+		}})
 	})
 	templates, _, err := client.PermissionTemplate.List(context.Background())
 	if err != nil {

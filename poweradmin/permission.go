@@ -35,13 +35,13 @@ func (p *PermissionClient) GetByID(ctx context.Context, id int) (*Permission, *R
 // List returns one page of [Permission]s.
 func (p *PermissionClient) List(ctx context.Context, opts ListOpts) ([]*Permission, *Response, error) {
 	path := appendQuery("permissions", opts.values())
-	var result []schema.Permission
+	var result schema.PermissionListResponse
 	resp, err := p.client.get(ctx, path, &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	perms := make([]*Permission, len(result))
-	for i, s := range result {
+	perms := make([]*Permission, len(result.Permissions))
+	for i, s := range result.Permissions {
 		perm := PermissionFromSchema(s)
 		perms[i] = &perm
 	}

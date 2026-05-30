@@ -7,6 +7,19 @@ management API (v2).
 import "contentways.dev/contentways/poweradmin-go/poweradmin"
 ```
 
+## Version compatibility
+
+| go-poweradmin | Poweradmin | Go     |
+| ------------- | ---------- | ------ |
+| 1.1.x         | 4.3.0+     | ≥ 1.26 |
+| 1.0.x         | < 4.3.0    | ≥ 1.26 |
+
+Poweradmin 4.3.0 standardized the v2 API so every endpoint wraps its payload
+under a named key (`data.zones`, `data.records`, `data.rrset`, …). Earlier
+releases returned most collection and single-resource endpoints as bare
+arrays/objects. Pick the client line that matches your server: use 1.0.x
+against Poweradmin older than 4.3.0, and 1.1.x against 4.3.0 and newer.
+
 ## Installation
 
 ```sh

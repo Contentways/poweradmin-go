@@ -14,9 +14,9 @@ func TestRecordListUsesZoneScope(t *testing.T) {
 		if r.URL.Path != "/api/v2/zones/5/records" {
 			t.Errorf("path = %s, want /api/v2/zones/5/records", r.URL.Path)
 		}
-		writeEnvelope(t, w, http.StatusOK, []map[string]any{
+		writeEnvelope(t, w, http.StatusOK, map[string]any{"records": []map[string]any{
 			{"id": 1, "name": "host", "type": "A", "content": "1.2.3.4", "ttl": 300},
-		})
+		}})
 	})
 	records, _, err := client.Record.List(context.Background(), 5, RecordListOpts{})
 	if err != nil {
@@ -31,7 +31,7 @@ func TestRecordListTypeFilter(t *testing.T) {
 	var gotType string
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
 		gotType = r.URL.Query().Get("type")
-		writeEnvelope(t, w, http.StatusOK, []map[string]any{})
+		writeEnvelope(t, w, http.StatusOK, map[string]any{"records": []map[string]any{}})
 	})
 	if _, _, err := client.Record.List(context.Background(), 5, RecordListOpts{Type: "MX"}); err != nil {
 		t.Fatalf("List: %v", err)
@@ -48,9 +48,9 @@ func TestRecordAllIteratesPages(t *testing.T) {
 			page = 1
 		}
 		writeEnvelopeWithPagination(t, w, http.StatusOK,
-			[]map[string]any{
+			map[string]any{"records": []map[string]any{
 				{"id": page, "name": "r" + strconv.Itoa(page), "type": "A", "ttl": 300},
-			},
+			}},
 			map[string]int{"current_page": page, "per_page": 1, "total": 3, "last_page": 3},
 		)
 	})
@@ -68,7 +68,7 @@ func TestRecordCreate(t *testing.T) {
 		if r.Method != http.MethodPost || r.URL.Path != "/api/v2/zones/5/records" {
 			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
 		}
-		// Create response is the flat shape with record_id at top of data.
+		// Create response wraps the new record under data.record.
 		writeEnvelope(t, w, http.StatusCreated, map[string]any{
 			"record": map[string]any{
 				"id":      99,
@@ -98,8 +98,10 @@ func TestRecordBulk(t *testing.T) {
 			t.Errorf("path = %s", r.URL.Path)
 		}
 		writeEnvelope(t, w, http.StatusOK, map[string]any{
-			"success_count": 2,
-			"failure_count": 0,
+			"created": 1,
+			"updated": 0,
+			"deleted": 1,
+			"failed":  0,
 		})
 	})
 	result, _, err := client.Record.Bulk(context.Background(), 5, []BulkRecordOperation{
@@ -109,7 +111,7 @@ func TestRecordBulk(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Bulk: %v", err)
 	}
-	if result.SuccessCount != 2 {
-		t.Errorf("SuccessCount = %d, want 2", result.SuccessCount)
+	if result.Created != 1 || result.Deleted != 1 {
+		t.Errorf("result = %+v, want created=1 deleted=1", result)
 	}
 }

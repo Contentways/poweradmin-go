@@ -178,13 +178,13 @@ type ZoneOwner struct {
 
 // Owners returns all owners of the zone.
 func (z *ZoneClient) Owners(ctx context.Context, zoneID int) ([]*ZoneOwner, *Response, error) {
-	var result []schema.ZoneOwner
+	var result schema.ZoneOwnerListResponse
 	resp, err := z.client.get(ctx, fmt.Sprintf("zones/%d/owners", zoneID), &result)
 	if err != nil {
 		return nil, resp, err
 	}
-	owners := make([]*ZoneOwner, len(result))
-	for i, s := range result {
+	owners := make([]*ZoneOwner, len(result.Owners))
+	for i, s := range result.Owners {
 		owners[i] = &ZoneOwner{UserID: s.UserID, Username: s.Username, Fullname: s.Fullname}
 	}
 	return owners, resp, nil

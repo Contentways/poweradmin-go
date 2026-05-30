@@ -15,14 +15,16 @@ func TestRRSetGet(t *testing.T) {
 		if r.URL.Path != "/api/v2/zones/5/rrsets/www/A" {
 			t.Errorf("path = %s, want /api/v2/zones/5/rrsets/www/A", r.URL.Path)
 		}
-		// Single RRSet GET: data is the RRSet directly (no wrapper).
+		// Single RRSet GET: the RRSet is wrapped under data.rrset.
 		writeEnvelope(t, w, http.StatusOK, map[string]any{
-			"name": "www",
-			"type": "A",
-			"ttl":  3600,
-			"records": []map[string]any{
-				{"content": "1.2.3.4", "disabled": false},
-				{"content": "1.2.3.5", "disabled": true},
+			"rrset": map[string]any{
+				"name": "www",
+				"type": "A",
+				"ttl":  3600,
+				"records": []map[string]any{
+					{"content": "1.2.3.4", "disabled": false},
+					{"content": "1.2.3.5", "disabled": true},
+				},
 			},
 		})
 	})
@@ -43,14 +45,14 @@ func TestRRSetList(t *testing.T) {
 		if r.URL.Path != "/api/v2/zones/5/rrsets" {
 			t.Errorf("path = %s", r.URL.Path)
 		}
-		writeEnvelope(t, w, http.StatusOK, []map[string]any{
+		writeEnvelope(t, w, http.StatusOK, map[string]any{"rrsets": []map[string]any{
 			{
 				"name":    "www.example.com",
 				"type":    "A",
 				"ttl":     3600,
 				"records": []map[string]any{{"content": "1.2.3.4"}},
 			},
-		})
+		}})
 	})
 	rrsets, _, err := client.RRSet.List(context.Background(), 5)
 	if err != nil {
