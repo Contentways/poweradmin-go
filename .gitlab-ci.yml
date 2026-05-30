@@ -22,10 +22,7 @@ pre-commit:
 
 test:
   stage: test
-  image: $GO_IMAGE
-  parallel:
-    matrix:
-      - GO_IMAGE: ["golang:1.25", "golang:1.26"]
+  image: golang:1.26
   script:
     - go test -coverprofile=coverage.txt -v -race ./...
     - go tool cover -func=coverage.txt
