@@ -68,7 +68,7 @@ A more complete CLI example lives in [`examples/main.go`](examples/main.go).
 Two authentication methods are supported:
 
 ```go
-// API key (recommended) — sent as Bearer and X-API-Key.
+// API key (recommended) — sent as an Authorization: Bearer token.
 poweradmin.WithAPIKey("your-api-key")
 
 // HTTP Basic auth.
@@ -80,7 +80,7 @@ poweradmin.WithBasicAuth("user", "password")
 | Option                  | Purpose                                              |
 | ----------------------- | ---------------------------------------------------- |
 | `WithBaseURL`           | Base URL of the Poweradmin instance                  |
-| `WithAPIKey`            | Bearer / X-API-Key authentication                    |
+| `WithAPIKey`            | Bearer token authentication                          |
 | `WithBasicAuth`         | HTTP Basic authentication                            |
 | `WithAPIVersion`        | Override API version prefix (default `v2`)           |
 | `WithHTTPClient`        | Inject a custom `*http.Client`                       |

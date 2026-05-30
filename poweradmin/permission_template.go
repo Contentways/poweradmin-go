@@ -84,13 +84,18 @@ func (c *PermissionTemplateClient) Create(ctx context.Context, opts PermissionTe
 		TemplateType: opts.TemplateType,
 		Permissions:  opts.Permissions,
 	}
-	var result schema.PermissionTemplateResponse
-	resp, err := c.client.post(ctx, "permission-templates", req, &result)
+	// The create endpoint returns an empty body, so look the new template up by
+	// name. That list lookup omits the permission list — call GetByID on the
+	// result if you need it.
+	resp, err := c.client.post(ctx, "permission-templates", req, nil)
 	if err != nil {
 		return nil, resp, err
 	}
-	tpl := permissionTemplateFromSchema(result.Template)
-	return &tpl, resp, nil
+	tpl, _, err := c.GetByName(ctx, opts.Name)
+	if err != nil {
+		return nil, resp, err
+	}
+	return tpl, resp, nil
 }
 
 // Update updates an existing [PermissionTemplate].
@@ -101,13 +106,17 @@ func (c *PermissionTemplateClient) Update(ctx context.Context, id int, opts Perm
 		TemplateType: opts.TemplateType,
 		Permissions:  opts.Permissions,
 	}
-	var result schema.PermissionTemplateResponse
-	resp, err := c.client.put(ctx, fmt.Sprintf("permission-templates/%d", id), req, &result)
+	// The update endpoint returns an empty body; read the updated template back
+	// by ID so callers get the persisted state, including its permissions.
+	resp, err := c.client.put(ctx, fmt.Sprintf("permission-templates/%d", id), req, nil)
 	if err != nil {
 		return nil, resp, err
 	}
-	tpl := permissionTemplateFromSchema(result.Template)
-	return &tpl, resp, nil
+	tpl, _, err := c.GetByID(ctx, id)
+	if err != nil {
+		return nil, resp, err
+	}
+	return tpl, resp, nil
 }
 
 // Delete deletes a [PermissionTemplate].
