@@ -86,8 +86,8 @@ func TestBearerHeader(t *testing.T) {
 	if gotAPIKey != "" {
 		t.Errorf("X-API-Key should be empty, got %q", gotAPIKey)
 	}
-	if !strings.HasPrefix(gotUA, "go-poweradmin/") {
-		t.Errorf("User-Agent = %q, want prefix go-poweradmin/", gotUA)
+	if !strings.HasPrefix(gotUA, "poweradmin-go/") {
+		t.Errorf("User-Agent = %q, want prefix poweradmin-go/", gotUA)
 	}
 }
 

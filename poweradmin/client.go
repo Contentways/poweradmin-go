@@ -20,7 +20,7 @@ import (
 const (
 	defaultAPIVersion = "v2"
 	defaultTimeout    = 30 * time.Second
-	userAgent         = "go-poweradmin/" + Version
+	userAgent         = "poweradmin-go/" + Version
 )
 
 // Client is the Poweradmin API client.
