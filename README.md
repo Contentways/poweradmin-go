@@ -1,4 +1,4 @@
-# go-poweradmin
+# poweradmin-go
 
 > **Mirror:** This repository is a read-only mirror. Primary development, issues, and contributions happen at [git.contentways.dev/contentways/poweradmin-go](https://git.contentways.dev/contentways/poweradmin-go).
 
@@ -11,7 +11,7 @@ import "contentways.dev/contentways/poweradmin-go/poweradmin"
 
 ## Version compatibility
 
-| go-poweradmin | Poweradmin | Go     |
+| poweradmin-go | Poweradmin | Go     |
 | ------------- | ---------- | ------ |
 | 1.1.x         | 4.3.0+     | ≥ 1.26 |
 | 1.0.x         | < 4.3.0    | ≥ 1.26 |
