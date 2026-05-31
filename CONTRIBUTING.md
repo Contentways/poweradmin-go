@@ -31,7 +31,7 @@ Thank you for considering contributing to **poweradmin-go** — a Go SDK for the
 ### Setup
 
 ```bash
-git clone https://contentways.dev/contentways/poweradmin-go.git
+git clone https://github.com/Contentways/poweradmin-go.git
 cd poweradmin-go
 go mod tidy
 cd tools && go mod tidy && cd ..
