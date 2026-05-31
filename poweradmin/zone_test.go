@@ -307,3 +307,73 @@ func TestZoneAddOwners(t *testing.T) {
 		t.Fatalf("AddOwners: %v", err)
 	}
 }
+
+func TestZoneGetDNSSEC(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			t.Errorf("method = %s, want GET", r.Method)
+		}
+		if r.URL.Path != "/api/v2/zones/5/dnssec" {
+			t.Errorf("path = %s, want /api/v2/zones/5/dnssec", r.URL.Path)
+		}
+		dnskey := "257 3 13 abc123"
+		writeEnvelope(t, w, http.StatusOK, map[string]any{
+			"enabled": true,
+			"ds_records": []map[string]any{
+				{"key_tag": 12345, "algorithm": 13, "digest_type": 2, "digest": "ABC123"},
+			},
+			"dnskey": dnskey,
+		})
+	})
+	d, resp, err := client.Zone.GetDNSSEC(context.Background(), 5)
+	if err != nil {
+		t.Fatalf("GetDNSSEC: %v", err)
+	}
+	if resp == nil || resp.StatusCode != http.StatusOK {
+		t.Errorf("response status = %v", resp)
+	}
+	if !d.Enabled {
+		t.Errorf("enabled = false, want true")
+	}
+	if len(d.DSRecords) != 1 {
+		t.Fatalf("ds_records len = %d, want 1", len(d.DSRecords))
+	}
+	if d.DSRecords[0].KeyTag != 12345 {
+		t.Errorf("key_tag = %d, want 12345", d.DSRecords[0].KeyTag)
+	}
+	if d.DNSKey == nil || *d.DNSKey != "257 3 13 abc123" {
+		t.Errorf("dnskey = %v", d.DNSKey)
+	}
+}
+
+func TestZoneSetDNSSEC(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost {
+			t.Errorf("method = %s, want POST", r.Method)
+		}
+		if r.URL.Path != "/api/v2/zones/5/dnssec" {
+			t.Errorf("path = %s, want /api/v2/zones/5/dnssec", r.URL.Path)
+		}
+		body, _ := io.ReadAll(r.Body)
+		var req map[string]any
+		_ = json.Unmarshal(body, &req)
+		if req["enabled"] != true {
+			t.Errorf("enabled = %v, want true", req["enabled"])
+		}
+		writeEnvelope(t, w, http.StatusOK, map[string]any{
+			"enabled":    true,
+			"ds_records": []map[string]any{},
+			"dnskey":     nil,
+		})
+	})
+	d, resp, err := client.Zone.SetDNSSEC(context.Background(), 5, true)
+	if err != nil {
+		t.Fatalf("SetDNSSEC: %v", err)
+	}
+	if resp == nil || resp.StatusCode != http.StatusOK {
+		t.Errorf("response status = %v", resp)
+	}
+	if !d.Enabled {
+		t.Errorf("enabled = false, want true")
+	}
+}

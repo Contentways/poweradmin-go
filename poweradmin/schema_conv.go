@@ -131,3 +131,20 @@ func PermissionFromSchema(s schema.Permission) Permission {
 		Descr: s.Descr,
 	}
 }
+
+func ZoneDNSSECFromSchema(s schema.ZoneDNSSECResponse) ZoneDNSSEC {
+	records := make([]DSRecord, len(s.DSRecords))
+	for i, r := range s.DSRecords {
+		records[i] = DSRecord{
+			KeyTag:     r.KeyTag,
+			Algorithm:  r.Algorithm,
+			DigestType: r.DigestType,
+			Digest:     r.Digest,
+		}
+	}
+	return ZoneDNSSEC{
+		Enabled:   s.Enabled,
+		DSRecords: records,
+		DNSKey:    s.DNSKey,
+	}
+}

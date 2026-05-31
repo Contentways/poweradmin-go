@@ -90,6 +90,25 @@ type ZoneUpdateRequest struct {
 	Description *string `json:"description,omitempty"`
 }
 
+// ── DNSSEC ───────────────────────────────────────────────────────────────────
+
+type DSRecord struct {
+	KeyTag     int    `json:"key_tag"`
+	Algorithm  int    `json:"algorithm"`
+	DigestType int    `json:"digest_type"`
+	Digest     string `json:"digest"`
+}
+
+type ZoneDNSSECResponse struct {
+	Enabled   bool       `json:"enabled"`
+	DSRecords []DSRecord `json:"ds_records"`
+	DNSKey    *string    `json:"dnskey"`
+}
+
+type ZoneDNSSECSetRequest struct {
+	Enabled bool `json:"enabled"`
+}
+
 // ── Record ───────────────────────────────────────────────────────────────────
 
 type Record struct {
