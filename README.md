@@ -1,8 +1,4 @@
-# go-poweradmin
-
-> Issues and pull requests are welcome here on GitHub. The Go import path is
-> `contentways.dev/contentways/poweradmin-go`, served via a vanity redirect to
-> this repository.
+# poweradmin-go
 
 A Go client library for the [Poweradmin](https://www.poweradmin.org/) DNS
 management API (v2).
@@ -13,7 +9,7 @@ import "contentways.dev/contentways/poweradmin-go/poweradmin"
 
 ## Version compatibility
 
-| go-poweradmin | Poweradmin | Go     |
+| poweradmin-go | Poweradmin | Go     |
 | ------------- | ---------- | ------ |
 | 1.1.x         | 4.3.0+     | ≥ 1.26 |
 | 1.0.x         | < 4.3.0    | ≥ 1.26 |

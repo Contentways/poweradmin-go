@@ -284,3 +284,26 @@ func TestZoneOwners(t *testing.T) {
 		t.Errorf("sawAdd=%v sawDelete=%v", sawAdd, sawDelete)
 	}
 }
+
+func TestZoneAddOwners(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodPost || r.URL.Path != "/api/v2/zones/5/owners" {
+			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
+		}
+		body, _ := io.ReadAll(r.Body)
+		var got map[string]any
+		_ = json.Unmarshal(body, &got)
+		ids, ok := got["user_ids"]
+		if !ok {
+			t.Errorf("expected user_ids in body, got %v", got)
+		}
+		// JSON numbers decode as float64
+		if ids.([]any)[0].(float64) != 3 || ids.([]any)[1].(float64) != 4 {
+			t.Errorf("user_ids = %v", ids)
+		}
+		writeEnvelope(t, w, http.StatusOK, nil)
+	})
+	if _, err := client.Zone.AddOwners(context.Background(), 5, []int{3, 4}); err != nil {
+		t.Fatalf("AddOwners: %v", err)
+	}
+}

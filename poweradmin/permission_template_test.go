@@ -103,3 +103,21 @@ func TestPermissionTemplateGetByID(t *testing.T) {
 		t.Errorf("tpl = %+v", tpl)
 	}
 }
+
+func TestPermissionTemplateDelete(t *testing.T) {
+	deleted := false
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodDelete || r.URL.Path != "/api/v2/permission-templates/8" {
+			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
+		}
+		deleted = true
+		writeEnvelope(t, w, http.StatusOK, nil)
+	})
+	_, err := client.PermissionTemplate.Delete(context.Background(), 8)
+	if err != nil {
+		t.Fatalf("Delete: %v", err)
+	}
+	if !deleted {
+		t.Error("DELETE was not called")
+	}
+}

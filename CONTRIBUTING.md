@@ -1,5 +1,23 @@
 # Contributing to poweradmin-go
 
+## About this project
+
+poweradmin-go is an open source Go SDK maintained by Patrick Omland
+(Contentways) as an independent community project. It is not affiliated with
+the Poweradmin project itself, though collaboration with the Poweradmin
+maintainers is actively encouraged.
+
+**Development happens publicly on GitHub.** All design decisions, issues, and
+pull requests are discussed openly here. There is no separate internal
+development track.
+
+The goal is to provide a well-tested, idiomatic Go client for the Poweradmin
+API — useful for anyone building automation, operators, or tooling around
+Poweradmin. Contributions, feedback, and questions are genuinely welcome.
+
+If you are unsure whether your idea fits the project, open an issue and let's
+talk about it before you invest time in a PR.
+
 Thank you for considering contributing to **poweradmin-go** — a Go SDK for the [Poweradmin](https://www.poweradmin.org/) DNS management API.
 
 ## Getting Started
