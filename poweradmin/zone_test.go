@@ -377,3 +377,26 @@ func TestZoneSetDNSSEC(t *testing.T) {
 		t.Errorf("enabled = false, want true")
 	}
 }
+
+func TestZoneGetDNSSECNotFound(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeError(t, w, http.StatusNotFound, "zone not found")
+	})
+	_, _, err := client.Zone.GetDNSSEC(context.Background(), 99)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+	if !IsNotFound(err) {
+		t.Errorf("IsNotFound = false, want true (err=%v)", err)
+	}
+}
+
+func TestZoneSetDNSSECError(t *testing.T) {
+	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
+		writeError(t, w, http.StatusInternalServerError, "failed to update DNSSEC status")
+	})
+	_, _, err := client.Zone.SetDNSSEC(context.Background(), 5, true)
+	if err == nil {
+		t.Fatal("expected error")
+	}
+}
