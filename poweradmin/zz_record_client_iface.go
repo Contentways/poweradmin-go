@@ -9,18 +9,18 @@ import (
 // IRecordClient ...
 type IRecordClient interface {
 	// GetByID returns a single [Record] by zone and record ID.
-	GetByID(ctx context.Context, zoneID int, recordID int64) (*Record, *Response, error)
+	GetByID(ctx context.Context, zoneID int, recordID string) (*Record, *Response, error)
 	// List returns one page of [Record]s for the given zone.
 	// Use [RecordListOpts] with Type set to filter by record type.
 	List(ctx context.Context, zoneID int, opts RecordListOpts) ([]*Record, *Response, error)
 	// All returns all [Record]s in a zone across all pages.
 	All(ctx context.Context, zoneID int) ([]*Record, error)
 	// Create creates a new [Record] in the given zone and returns the new ID.
-	Create(ctx context.Context, zoneID int, opts RecordCreateOpts) (int64, *Response, error)
+	Create(ctx context.Context, zoneID int, opts RecordCreateOpts) (string, *Response, error)
 	// Update updates an existing [Record] and returns the updated state.
-	Update(ctx context.Context, zoneID int, recordID int64, opts RecordUpdateOpts) (*Record, *Response, error)
+	Update(ctx context.Context, zoneID int, recordID string, opts RecordUpdateOpts) (*Record, *Response, error)
 	// Delete deletes the [Record] with the given ID.
-	Delete(ctx context.Context, zoneID int, recordID int64) (*Response, error)
+	Delete(ctx context.Context, zoneID int, recordID string) (*Response, error)
 	// Bulk executes multiple record operations atomically against the given zone.
 	Bulk(ctx context.Context, zoneID int, ops []BulkRecordOperation) (*BulkRecordsResult, *Response, error)
 }

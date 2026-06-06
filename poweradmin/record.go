@@ -11,7 +11,7 @@ import (
 
 // Record represents a DNS record in Poweradmin.
 type Record struct {
-	ID       int64
+	ID       string
 	ZoneID   int64
 	Name     string
 	Type     string
@@ -49,7 +49,7 @@ type RecordUpdateOpts struct {
 // update/delete; Name/Type/Content are required for create.
 type BulkRecordOperation struct {
 	Action   string
-	RecordID int
+	RecordID string
 	Name     string
 	Type     string
 	Content  string
@@ -74,9 +74,9 @@ type RecordClient struct {
 }
 
 // GetByID returns a single [Record] by zone and record ID.
-func (r *RecordClient) GetByID(ctx context.Context, zoneID int, recordID int64) (*Record, *Response, error) {
+func (r *RecordClient) GetByID(ctx context.Context, zoneID int, recordID string) (*Record, *Response, error) {
 	var result schema.RecordResponse
-	resp, err := r.client.get(ctx, fmt.Sprintf("zones/%d/records/%d", zoneID, recordID), &result)
+	resp, err := r.client.get(ctx, fmt.Sprintf("zones/%d/records/%s", zoneID, recordID), &result)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -129,7 +129,7 @@ func (r *RecordClient) All(ctx context.Context, zoneID int) ([]*Record, error) {
 }
 
 // Create creates a new [Record] in the given zone and returns the new ID.
-func (r *RecordClient) Create(ctx context.Context, zoneID int, opts RecordCreateOpts) (int64, *Response, error) {
+func (r *RecordClient) Create(ctx context.Context, zoneID int, opts RecordCreateOpts) (string, *Response, error) {
 	req := schema.RecordCreateRequest{
 		Name:      opts.Name,
 		Type:      opts.Type,
@@ -142,13 +142,13 @@ func (r *RecordClient) Create(ctx context.Context, zoneID int, opts RecordCreate
 	var result schema.RecordResponse
 	resp, err := r.client.post(ctx, fmt.Sprintf("zones/%d/records", zoneID), req, &result)
 	if err != nil {
-		return 0, resp, err
+		return "", resp, err
 	}
 	return result.Record.ID, resp, nil
 }
 
 // Update updates an existing [Record] and returns the updated state.
-func (r *RecordClient) Update(ctx context.Context, zoneID int, recordID int64, opts RecordUpdateOpts) (*Record, *Response, error) {
+func (r *RecordClient) Update(ctx context.Context, zoneID int, recordID string, opts RecordUpdateOpts) (*Record, *Response, error) {
 	req := schema.RecordUpdateRequest{
 		Name:     opts.Name,
 		Type:     opts.Type,
@@ -158,7 +158,7 @@ func (r *RecordClient) Update(ctx context.Context, zoneID int, recordID int64, o
 		Disabled: opts.Disabled,
 	}
 	var result schema.RecordResponse
-	resp, err := r.client.put(ctx, fmt.Sprintf("zones/%d/records/%d", zoneID, recordID), req, &result)
+	resp, err := r.client.put(ctx, fmt.Sprintf("zones/%d/records/%s", zoneID, recordID), req, &result)
 	if err != nil {
 		return nil, resp, err
 	}
@@ -167,8 +167,8 @@ func (r *RecordClient) Update(ctx context.Context, zoneID int, recordID int64, o
 }
 
 // Delete deletes the [Record] with the given ID.
-func (r *RecordClient) Delete(ctx context.Context, zoneID int, recordID int64) (*Response, error) {
-	return r.client.delete(ctx, fmt.Sprintf("zones/%d/records/%d", zoneID, recordID))
+func (r *RecordClient) Delete(ctx context.Context, zoneID int, recordID string) (*Response, error) {
+	return r.client.delete(ctx, fmt.Sprintf("zones/%d/records/%s", zoneID, recordID))
 }
 
 // Bulk executes multiple record operations atomically against the given zone.

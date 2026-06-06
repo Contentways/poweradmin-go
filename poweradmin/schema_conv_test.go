@@ -48,7 +48,7 @@ func TestUserFromSchemaMapsUserID(t *testing.T) {
 
 func TestRecordRoundtrip(t *testing.T) {
 	in := schema.Record{
-		ID:       1,
+		ID:       "rec-1",
 		ZoneID:   2,
 		Name:     "host.example.com",
 		Type:     "A",

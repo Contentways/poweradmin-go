@@ -15,7 +15,7 @@ func TestRecordListUsesZoneScope(t *testing.T) {
 			t.Errorf("path = %s, want /api/v2/zones/5/records", r.URL.Path)
 		}
 		writeEnvelope(t, w, http.StatusOK, map[string]any{"records": []map[string]any{
-			{"id": 1, "name": "host", "type": "A", "content": "1.2.3.4", "ttl": 300},
+			{"id": "rec-1", "name": "host", "type": "A", "content": "1.2.3.4", "ttl": 300},
 		}})
 	})
 	records, _, err := client.Record.List(context.Background(), 5, RecordListOpts{})
@@ -49,7 +49,7 @@ func TestRecordAllIteratesPages(t *testing.T) {
 		}
 		writeEnvelopeWithPagination(t, w, http.StatusOK,
 			map[string]any{"records": []map[string]any{
-				{"id": page, "name": "r" + strconv.Itoa(page), "type": "A", "ttl": 300},
+				{"id": "rec-" + strconv.Itoa(page), "name": "r" + strconv.Itoa(page), "type": "A", "ttl": 300},
 			}},
 			map[string]int{"current_page": page, "per_page": 1, "total": 3, "last_page": 3},
 		)
@@ -71,7 +71,7 @@ func TestRecordCreate(t *testing.T) {
 		// Create response wraps the new record under data.record.
 		writeEnvelope(t, w, http.StatusCreated, map[string]any{
 			"record": map[string]any{
-				"id":      99,
+				"id":      "rec-99",
 				"zone_id": 5,
 				"name":    "www.example.com",
 				"type":    "A",
@@ -84,8 +84,8 @@ func TestRecordCreate(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Create: %v", err)
 	}
-	if id != 99 {
-		t.Errorf("id = %d, want 99", id)
+	if id != "rec-99" {
+		t.Errorf("id = %s, want rec-99", id)
 	}
 }
 
@@ -106,7 +106,7 @@ func TestRecordBulk(t *testing.T) {
 	})
 	result, _, err := client.Record.Bulk(context.Background(), 5, []BulkRecordOperation{
 		{Action: "create", Name: "a", Type: "A", Content: "1.1.1.1", TTL: 300},
-		{Action: "delete", RecordID: 99},
+		{Action: "delete", RecordID: "rec-99"},
 	})
 	if err != nil {
 		t.Fatalf("Bulk: %v", err)
@@ -118,12 +118,12 @@ func TestRecordBulk(t *testing.T) {
 
 func TestRecordGetByID(t *testing.T) {
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodGet || r.URL.Path != "/api/v2/zones/5/records/99" {
+		if r.Method != http.MethodGet || r.URL.Path != "/api/v2/zones/5/records/rec-99" {
 			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
 		}
 		writeEnvelope(t, w, http.StatusOK, map[string]any{
 			"record": map[string]any{
-				"id":      99,
+				"id":      "rec-99",
 				"zone_id": 5,
 				"name":    "www.example.com",
 				"type":    "A",
@@ -132,23 +132,23 @@ func TestRecordGetByID(t *testing.T) {
 			},
 		})
 	})
-	rec, _, err := client.Record.GetByID(context.Background(), 5, 99)
+	rec, _, err := client.Record.GetByID(context.Background(), 5, "rec-99")
 	if err != nil {
 		t.Fatalf("GetByID: %v", err)
 	}
-	if rec.ID != 99 || rec.Type != "A" || rec.Content != "1.2.3.4" {
+	if rec.ID != "rec-99" || rec.Type != "A" || rec.Content != "1.2.3.4" {
 		t.Errorf("rec = %+v", rec)
 	}
 }
 
 func TestRecordUpdate(t *testing.T) {
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodPut || r.URL.Path != "/api/v2/zones/5/records/99" {
+		if r.Method != http.MethodPut || r.URL.Path != "/api/v2/zones/5/records/rec-99" {
 			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
 		}
 		writeEnvelope(t, w, http.StatusOK, map[string]any{
 			"record": map[string]any{
-				"id":      99,
+				"id":      "rec-99",
 				"zone_id": 5,
 				"name":    "www.example.com",
 				"type":    "A",
@@ -158,7 +158,7 @@ func TestRecordUpdate(t *testing.T) {
 		})
 	})
 	ttl := 600
-	rec, _, err := client.Record.Update(context.Background(), 5, 99, RecordUpdateOpts{
+	rec, _, err := client.Record.Update(context.Background(), 5, "rec-99", RecordUpdateOpts{
 		Name:    "www.example.com",
 		Type:    "A",
 		Content: "5.6.7.8",
@@ -175,13 +175,13 @@ func TestRecordUpdate(t *testing.T) {
 func TestRecordDelete(t *testing.T) {
 	deleted := false
 	client, _ := newTestClient(t, func(w http.ResponseWriter, r *http.Request) {
-		if r.Method != http.MethodDelete || r.URL.Path != "/api/v2/zones/5/records/99" {
+		if r.Method != http.MethodDelete || r.URL.Path != "/api/v2/zones/5/records/rec-99" {
 			t.Errorf("method/path = %s %s", r.Method, r.URL.Path)
 		}
 		deleted = true
 		writeEnvelope(t, w, http.StatusOK, nil)
 	})
-	_, err := client.Record.Delete(context.Background(), 5, 99)
+	_, err := client.Record.Delete(context.Background(), 5, "rec-99")
 	if err != nil {
 		t.Fatalf("Delete: %v", err)
 	}

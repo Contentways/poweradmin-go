@@ -91,11 +91,10 @@ func main() {
 		if len(args) < 2 {
 			log.Fatal("usage: delete-record <zone-name> <record-id>")
 		}
-		id, err := strconv.ParseInt(args[1], 10, 64)
 		if err != nil {
 			log.Fatalf("invalid record id: %v", err)
 		}
-		deleteRecord(ctx, client, args[0], id)
+		deleteRecord(ctx, client, args[0], args[1])
 	default:
 		fmt.Fprintf(os.Stderr, "unknown command: %s\n\n", cmd)
 		usage()
@@ -169,7 +168,7 @@ func listRecords(ctx context.Context, c *poweradmin.Client, zoneName string) {
 	}
 	fmt.Printf("%d record(s) in %s\n", len(records), zoneName)
 	for _, r := range records {
-		fmt.Printf("  [%5d] %-30s %-6s %-30s TTL=%d\n", r.ID, r.Name, r.Type, r.Content, r.TTL)
+		fmt.Printf("  [%5s] %-30s %-6s %-30s TTL=%d\n", r.ID, r.Name, r.Type, r.Content, r.TTL)
 	}
 }
 
@@ -187,10 +186,10 @@ func createRecord(ctx context.Context, c *poweradmin.Client, zoneName, name, rec
 	if err != nil {
 		log.Fatalf("create record: %v", err)
 	}
-	fmt.Printf("created record %s %s %s in zone %s (id %d)\n", name, recordType, content, zoneName, id)
+	fmt.Printf("created record %s %s %s in zone %s (id %s)\n", name, recordType, content, zoneName, id)
 }
 
-func deleteRecord(ctx context.Context, c *poweradmin.Client, zoneName string, recordID int64) {
+func deleteRecord(ctx context.Context, c *poweradmin.Client, zoneName string, recordID string) {
 	z, _, err := c.Zone.GetByName(ctx, zoneName)
 	if err != nil {
 		log.Fatalf("resolve zone: %v", err)
@@ -198,5 +197,5 @@ func deleteRecord(ctx context.Context, c *poweradmin.Client, zoneName string, re
 	if _, err := c.Record.Delete(ctx, z.ID, recordID); err != nil {
 		log.Fatalf("delete record: %v", err)
 	}
-	fmt.Printf("deleted record %d from zone %s\n", recordID, zoneName)
+	fmt.Printf("deleted record %s from zone %s\n", recordID, zoneName)
 }
