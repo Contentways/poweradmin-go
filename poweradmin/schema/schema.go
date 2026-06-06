@@ -93,7 +93,7 @@ type ZoneUpdateRequest struct {
 // ── Record ───────────────────────────────────────────────────────────────────
 
 type Record struct {
-	ID       int64  `json:"id,omitempty"`
+	ID       string `json:"id,omitempty"`
 	ZoneID   int64  `json:"zone_id,omitempty"`
 	Name     string `json:"name"`
 	Type     string `json:"type"`
@@ -136,7 +136,7 @@ type RecordUpdateRequest struct {
 
 type BulkRecordOperation struct {
 	Action   string `json:"action"`
-	ID       int    `json:"id,omitempty"`
+	ID       string `json:"id,omitempty"`
 	Name     string `json:"name,omitempty"`
 	Type     string `json:"type,omitempty"`
 	Content  string `json:"content,omitempty"`
