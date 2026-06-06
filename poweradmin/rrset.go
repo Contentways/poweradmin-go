@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"contentways.dev/contentways/poweradmin-go/poweradmin/schema"
+	"contentways.dev/contentways/poweradmin-go/v2/poweradmin/schema"
 )
 
 // RRSet represents a DNS Resource Record Set. RRSets group all records that

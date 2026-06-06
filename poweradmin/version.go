@@ -3,4 +3,4 @@
 package poweradmin
 
 // Version is the current version of the poweradmin-go SDK.
-const Version = "1.1.0"
+const Version = "2.0.0"

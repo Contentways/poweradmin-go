@@ -6,7 +6,7 @@ import (
 	"context"
 	"fmt"
 
-	"contentways.dev/contentways/poweradmin-go/poweradmin/schema"
+	"contentways.dev/contentways/poweradmin-go/v2/poweradmin/schema"
 )
 
 // Group represents a Poweradmin user group.

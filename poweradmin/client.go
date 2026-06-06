@@ -14,7 +14,7 @@ import (
 	"strings"
 	"time"
 
-	"contentways.dev/contentways/poweradmin-go/poweradmin/schema"
+	"contentways.dev/contentways/poweradmin-go/v2/poweradmin/schema"
 )
 
 const (
