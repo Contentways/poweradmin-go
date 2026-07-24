@@ -35,4 +35,8 @@ type IZoneClient interface {
 	AddOwners(ctx context.Context, zoneID int, userIDs []int) (*Response, error)
 	// RemoveOwner removes a user from the zone's owners.
 	RemoveOwner(ctx context.Context, zoneID, userID int) (*Response, error)
+	// GetDNSSEC returns the DNSSEC status of the zone with the given ID.
+	GetDNSSEC(ctx context.Context, id int) (*ZoneDNSSEC, *Response, error)
+	// SetDNSSEC enables or disables DNSSEC for the zone with the given ID.
+	SetDNSSEC(ctx context.Context, id int, enabled bool) (*ZoneDNSSEC, *Response, error)
 }

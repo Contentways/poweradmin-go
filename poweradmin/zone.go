@@ -49,6 +49,21 @@ type ZoneUpdateOpts struct {
 	Description *string
 }
 
+// ZoneDNSSEC represents the DNSSEC status of a zone.
+type ZoneDNSSEC struct {
+	Enabled   bool
+	DSRecords []DSRecord
+	DNSKey    *string
+}
+
+// DSRecord represents a DS record for registry submission.
+type DSRecord struct {
+	KeyTag     int
+	Algorithm  int
+	DigestType int
+	Digest     string
+}
+
 // ZoneClient provides access to the zone-related Poweradmin API endpoints.
 type ZoneClient struct {
 	client *Client
@@ -205,4 +220,29 @@ func (z *ZoneClient) AddOwners(ctx context.Context, zoneID int, userIDs []int) (
 // RemoveOwner removes a user from the zone's owners.
 func (z *ZoneClient) RemoveOwner(ctx context.Context, zoneID, userID int) (*Response, error) {
 	return z.client.delete(ctx, fmt.Sprintf("zones/%d/owners/%d", zoneID, userID))
+}
+
+// ── DNSSEC ───────────────────────────────────────────────────────────────────
+
+// GetDNSSEC returns the DNSSEC status of the zone with the given ID.
+func (z *ZoneClient) GetDNSSEC(ctx context.Context, id int) (*ZoneDNSSEC, *Response, error) {
+	var result schema.ZoneDNSSECResponse
+	resp, err := z.client.get(ctx, fmt.Sprintf("zones/%d/dnssec", id), &result)
+	if err != nil {
+		return nil, resp, err
+	}
+	dnssec := ZoneDNSSECFromSchema(result)
+	return &dnssec, resp, nil
+}
+
+// SetDNSSEC enables or disables DNSSEC for the zone with the given ID.
+func (z *ZoneClient) SetDNSSEC(ctx context.Context, id int, enabled bool) (*ZoneDNSSEC, *Response, error) {
+	req := schema.ZoneDNSSECSetRequest{Enabled: enabled}
+	var result schema.ZoneDNSSECResponse
+	resp, err := z.client.post(ctx, fmt.Sprintf("zones/%d/dnssec", id), req, &result)
+	if err != nil {
+		return nil, resp, err
+	}
+	dnssec := ZoneDNSSECFromSchema(result)
+	return &dnssec, resp, nil
 }
